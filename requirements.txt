@@ -1,0 +1,7 @@
+livekit-agents[deepgram,cartesia,groq,silero]
+python-dotenv
+pypdf
+groq
+fastapi
+uvicorn
+python-multipart

@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+.env
+candidate_cv.pdf
+scorecard.json
+job_role.txt
+.git/

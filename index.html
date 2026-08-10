@@ -119,6 +119,11 @@
       <input type="text" id="jobTitle" placeholder="e.g. Data Analyst">
     </div>
 
+    <div class="section" id="codeSection">
+      <label for="accessCode">Access code</label>
+      <input type="text" id="accessCode" placeholder="Enter your access code">
+    </div>
+
     <div class="section" id="uploadSection">
       <label for="cvFile">CV (PDF, optional)</label>
       <div class="file-drop" id="fileDropLabel">
@@ -145,7 +150,7 @@
 </div>
 
 <script>
-const BACKEND_URL = "http://127.0.0.1:8000";
+const BACKEND_URL = "";
 
 const startBtn = document.getElementById("startBtn");
 const endBtn = document.getElementById("endBtn");
@@ -201,7 +206,13 @@ async function startInterview() {
   await uploadCvIfPresent();
 
   setStatus("Connecting...", false);
-  const res = await fetch(`${BACKEND_URL}/get-token`);
+  const code = document.getElementById("accessCode").value.trim();
+  const res = await fetch(`${BACKEND_URL}/get-token?code=${encodeURIComponent(code)}`);
+  if (res.status === 403) {
+    setStatus("Invalid access code", false);
+    startBtn.disabled = false;
+    return;
+  }
   const { token, url } = await res.json();
 
   room = new LivekitClient.Room();

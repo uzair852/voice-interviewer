@@ -1,6 +1,6 @@
-from fastapi import FastAPI, UploadFile, Form
+from fastapi import FastAPI, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from livekit import api
 import os
 import uuid
@@ -19,9 +19,17 @@ app.add_middleware(
 )
 
 ROOM_NAME = "interview-room"
+ACCESS_CODE = os.getenv("ACCESS_CODE", "")
+
+@app.get("/")
+def serve_frontend():
+    return FileResponse("index.html")
 
 @app.get("/get-token")
-def get_token():
+def get_token(code: str = ""):
+    if ACCESS_CODE and code != ACCESS_CODE:
+        raise HTTPException(status_code=403, detail="Invalid access code")
+
     identity = f"candidate-{uuid.uuid4().hex[:8]}"
     token = (
         api.AccessToken()
