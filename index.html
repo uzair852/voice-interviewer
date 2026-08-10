@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Interview</title>
+<script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, Segoe UI, Roboto, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(129, 108, 255, 0.25), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.22), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(244, 114, 182, 0.18), transparent 45%),
+      linear-gradient(135deg, #0f0c29, #1a1a3e 45%, #16213e 100%);
+    background-attachment: fixed;
+  }
+  .wrapper { width: 100%; max-width: 480px; }
+  .badge {
+    display: flex; align-items: center; gap: 8px;
+    color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #a78bfa; box-shadow: 0 0 12px #a78bfa; }
+  .card {
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(15, 12, 41, 0.45), 0 0 0 1px rgba(255,255,255,0.06);
+    padding: 36px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg, #816cff, #38bdf8, #f472b6);
+  }
+  h1 { font-size: 24px; margin: 0 0 4px; color: #17172b; font-weight: 700; }
+  .subtitle { color: #6b7280; font-size: 14px; margin-bottom: 26px; }
+  .section { margin-bottom: 22px; }
+  label { font-size: 13px; font-weight: 600; color: #374151; display: block; margin-bottom: 8px; }
+  input[type="text"] {
+    width: 100%; padding: 12px 14px; border: 1.5px solid #e5e7eb; border-radius: 12px;
+    font-size: 14px; font-family: inherit; color: #17172b;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus { outline: none; border-color: #816cff; }
+  .file-drop {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; border: 1.5px dashed #c7c9f5; border-radius: 12px;
+    background: #f8f7ff; font-size: 13px; color: #6b7280;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  }
+  .file-drop:hover { border-color: #816cff; background: #f2f0ff; }
+  input[type="file"] { display: none; }
+  .file-icon {
+    width: 28px; height: 28px; border-radius: 8px; background: #816cff;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 14px; font-weight: 700;
+  }
+  button {
+    width: 100%; padding: 14px; border: none; border-radius: 12px;
+    font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.1s, opacity 0.15s;
+  }
+  button:active { transform: scale(0.98); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary {
+    background: linear-gradient(135deg, #816cff, #6366f1);
+    color: white;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+  }
+  .btn-danger { background: #dc2626; color: white; box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3); }
+  .status {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px; border-radius: 12px; background: #f8f7ff;
+    font-size: 14px; color: #374151; margin: 18px 0; font-weight: 500;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #9ca3af; }
+  .dot.live { background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .scorecard { margin-top: 22px; }
+  .scorecard h1 { font-size: 19px; }
+  .score-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 0; border-bottom: 1px solid #f0f0f4;
+  }
+  .score-label { font-size: 14px; color: #374151; font-weight: 500; }
+  .score-bar-bg { flex: 1; height: 8px; background: #eeecfb; border-radius: 4px; margin: 0 14px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg, #816cff, #38bdf8); border-radius: 4px; }
+  .score-value { font-size: 14px; font-weight: 700; color: #17172b; min-width: 32px; text-align: right; }
+  .summary-box {
+    background: #f8f7ff; border-radius: 12px; padding: 16px; margin-top: 18px;
+    font-size: 14px; line-height: 1.6; color: #374151; border-left: 3px solid #816cff;
+  }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="badge"><span class="badge-dot"></span> AI voice interviewer</div>
+
+  <div class="card">
+    <h1>Interview practice</h1>
+    <p class="subtitle">Tell us the role, optionally add your CV, then start.</p>
+
+    <div class="section" id="roleSection">
+      <label for="jobTitle">Job title you're applying for</label>
+      <input type="text" id="jobTitle" placeholder="e.g. Data Analyst">
+    </div>
+
+    <div class="section" id="uploadSection">
+      <label for="cvFile">CV (PDF, optional)</label>
+      <div class="file-drop" id="fileDropLabel">
+        <div class="file-icon">CV</div>
+        <span id="fileNameText">Choose a file or drag it here</span>
+      </div>
+      <input type="file" id="cvFile" accept="application/pdf">
+    </div>
+
+    <button class="btn-primary" id="startBtn">Start interview</button>
+    <button class="btn-danger hidden" id="endBtn">End interview</button>
+
+    <div class="status hidden" id="statusBox">
+      <div class="dot" id="statusDot"></div>
+      <span id="statusText">Not connected</span>
+    </div>
+
+    <div class="scorecard hidden" id="scorecardBox">
+      <h1>Your results</h1>
+      <div id="scoreRows"></div>
+      <div class="summary-box" id="summaryText"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BACKEND_URL = "http://127.0.0.1:8000";
+
+const startBtn = document.getElementById("startBtn");
+const endBtn = document.getElementById("endBtn");
+const statusBox = document.getElementById("statusBox");
+const statusDot = document.getElementById("statusDot");
+const statusText = document.getElementById("statusText");
+const scorecardBox = document.getElementById("scorecardBox");
+const scoreRows = document.getElementById("scoreRows");
+const summaryText = document.getElementById("summaryText");
+const cvFileInput = document.getElementById("cvFile");
+const uploadSection = document.getElementById("uploadSection");
+const roleSection = document.getElementById("roleSection");
+const jobTitleInput = document.getElementById("jobTitle");
+const fileDropLabel = document.getElementById("fileDropLabel");
+const fileNameText = document.getElementById("fileNameText");
+
+let room = null;
+
+fileDropLabel.addEventListener("click", () => cvFileInput.click());
+cvFileInput.addEventListener("change", () => {
+  if (cvFileInput.files[0]) {
+    fileNameText.textContent = cvFileInput.files[0].name;
+  }
+});
+
+function setStatus(text, live) {
+  statusBox.classList.remove("hidden");
+  statusText.textContent = text;
+  statusDot.classList.toggle("live", !!live);
+}
+
+async function uploadCvIfPresent() {
+  const file = cvFileInput.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append("file", file);
+  await fetch(`${BACKEND_URL}/upload-cv`, { method: "POST", body: formData });
+}
+
+async function saveJobRoleIfPresent() {
+  const title = jobTitleInput.value.trim();
+  if (!title) return;
+  const formData = new FormData();
+  formData.append("job_title", title);
+  await fetch(`${BACKEND_URL}/set-role`, { method: "POST", body: formData });
+}
+
+async function startInterview() {
+  startBtn.disabled = true;
+  setStatus("Setting up your interview...", false);
+
+  await saveJobRoleIfPresent();
+  await uploadCvIfPresent();
+
+  setStatus("Connecting...", false);
+  const res = await fetch(`${BACKEND_URL}/get-token`);
+  const { token, url } = await res.json();
+
+  room = new LivekitClient.Room();
+
+  room.on(LivekitClient.RoomEvent.Disconnected, () => {
+    setStatus("Interview ended", false);
+    endBtn.classList.add("hidden");
+    startBtn.classList.add("hidden");
+    uploadSection.classList.add("hidden");
+    roleSection.classList.add("hidden");
+    pollForScorecard();
+  });
+
+  room.on(LivekitClient.RoomEvent.TrackSubscribed, (track) => {
+    if (track.kind === "audio") {
+      track.attach();
+      setStatus("Interview in progress", true);
+    }
+  });
+
+  await room.connect(url, token);
+  await room.localParticipant.setMicrophoneEnabled(true);
+
+  startBtn.classList.add("hidden");
+  uploadSection.classList.add("hidden");
+  roleSection.classList.add("hidden");
+  endBtn.classList.remove("hidden");
+  setStatus("Interview in progress", true);
+}
+
+async function endInterview() {
+  if (room) await room.disconnect();
+}
+
+async function pollForScorecard() {
+  setStatus("Generating your results...", false);
+  const interval = setInterval(async () => {
+    const res = await fetch(`${BACKEND_URL}/scorecard`);
+    const data = await res.json();
+    if (data.status === "ready") {
+      clearInterval(interval);
+      showScorecard(data.scorecard);
+    }
+  }, 2000);
+}
+
+function showScorecard(sc) {
+  statusBox.classList.add("hidden");
+  scorecardBox.classList.remove("hidden");
+
+  const domains = [
+    ["Technical skills", sc.technical_skills],
+    ["Communication", sc.communication],
+    ["Problem solving", sc.problem_solving],
+    ["Confidence", sc.confidence],
+  ];
+
+  scoreRows.innerHTML = domains.map(([label, value]) => `
+    <div class="score-row">
+      <span class="score-label">${label}</span>
+      <div class="score-bar-bg"><div class="score-bar-fill" style="width:${(value / 5) * 100}%"></div></div>
+      <span class="score-value">${value}/5</span>
+    </div>
+  `).join("");
+
+  summaryText.textContent = sc.summary || "";
+}
+
+startBtn.addEventListener("click", startInterview);
+endBtn.addEventListener("click", endInterview);
+</script>
+
+</body>
+</html>
