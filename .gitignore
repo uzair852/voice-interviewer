@@ -1,7 +1,17 @@
+# Secrets
 .env
+*keys*.txt
+
+# Python
 venv/
 __pycache__/
 *.pyc
+
+# Runtime files (contain personal data)
 candidate_cv.pdf
 scorecard.json
 job_role.txt
+
+# Office source files (keep the PDF only)
+*.pptx
+*.docx

@@ -12,6 +12,8 @@ load_dotenv()
 
 groq_client = Groq()
 
+LLM_MODEL = "openai/gpt-oss-120b"
+
 BASE_INSTRUCTIONS = """
 You are a professional AI job interviewer conducting a voice interview.
 
@@ -104,7 +106,7 @@ TRANSCRIPT:
 {transcript_text}
 """
     response = groq_client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model=LLM_MODEL,
         messages=[{"role": "user", "content": prompt}],
     )
     raw = response.choices[0].message.content
@@ -123,7 +125,7 @@ async def entrypoint(ctx: agents.JobContext):
 
     session = AgentSession(
         stt=deepgram.STT(model="nova-3"),
-        llm=groq.LLM(model="llama-3.3-70b-versatile"),
+        llm=groq.LLM(model=LLM_MODEL),
         tts=cartesia.TTS(),
         vad=silero.VAD.load(),
     )
