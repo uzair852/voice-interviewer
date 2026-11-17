@@ -97,3 +97,7 @@ LiveKit room ◄─────────────────────�
 - **Shared disk required:** the backend and agent exchange the CV, role and scorecard through local files, so they need to run on the same machine. Deploying them as separate containers (`Dockerfile.backend` and `Dockerfile.agent`) would need shared storage or a database instead.
 
 Next steps would be per-session rooms and storing session data in a database, so multiple candidates can be interviewed at the same time.
+
+## Documentation
+
+See [Task3_Solution_Document.pdf](Task3_Solution_Document.pdf) for the full design write-up.
